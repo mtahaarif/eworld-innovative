@@ -1,0 +1,339 @@
+/* The header floats over the top of the page as a rounded glass capsule:
+   light and airy over the hero, then a deeper frosted tone once the page
+   scrolls and it has to sit over content. */
+.headerWrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 150;
+}
+
+.header {
+  --pad-y: 10px;
+  --logo-pad: 7px;
+  --capsule-bg: rgba(10, 15, 26, 0.3);
+  --capsule-border: rgba(255, 255, 255, 0.14);
+  --capsule-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+
+  position: relative;
+  z-index: 100;
+  padding-top: 16px;
+  transition: padding 0.4s var(--ease-out);
+}
+
+.fixed {
+  --pad-y: 8px;
+  --logo-pad: 5px;
+  --capsule-bg: rgba(10, 15, 26, 0.68);
+  --capsule-border: rgba(255, 255, 255, 0.1);
+  --capsule-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9989;
+  padding-top: 10px;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: var(--pad-y) 12px var(--pad-y) var(--pad-y);
+  border: 1px solid var(--capsule-border);
+  border-radius: 22px;
+  background: var(--capsule-bg);
+  backdrop-filter: var(--glass-blur);
+  box-shadow: var(--capsule-shadow), var(--glass-highlight);
+  transition:
+    padding 0.4s var(--ease-out),
+    background-color 0.4s var(--ease-out),
+    border-color 0.4s var(--ease-out),
+    box-shadow 0.4s var(--ease-out);
+}
+
+/* Logo
+   The source PNG has its own opaque white square background, so it sits in
+   an intentional white rounded badge rather than floating loose on the glass. */
+.logo {
+  flex: none;
+}
+
+.logo a {
+  display: flex;
+  padding: var(--logo-pad);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  transition:
+    padding 0.4s var(--ease-out),
+    transform 0.3s var(--ease-out);
+}
+
+.logo a:hover {
+  transform: scale(1.04);
+}
+
+.logo img {
+  display: block;
+  width: auto;
+  height: 30px;
+}
+
+/* Desktop navigation */
+
+.nav {
+  flex: none;
+}
+
+.nav ul {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+}
+
+.nav a {
+  display: block;
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0.1px;
+  transition:
+    color 0.3s var(--ease-out),
+    background-color 0.3s var(--ease-out);
+}
+
+.nav a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.nav a span {
+  display: block;
+}
+
+/* Between 992px and 1199px the capsule is too narrow for the full menu at
+   its normal spacing, so the pills tighten up. */
+@media (max-width: 1199px) {
+  .nav a {
+    padding: 8px 10px;
+    font-size: 13.5px;
+  }
+}
+
+/* Mobile menu button (hamburger) */
+
+.burger {
+  display: none;
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition:
+    opacity 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.burger::before,
+.burger::after,
+.burger span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18px;
+  height: 2px;
+  margin: -1px 0 0 -9px;
+  border-radius: 2px;
+  background-color: #fff;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.burger::before,
+.burger::after {
+  content: "";
+}
+
+.burger::before {
+  transform: translateY(-6px);
+}
+
+.burger::after {
+  transform: translateY(6px);
+}
+
+.burger:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.burgerHidden {
+  opacity: 0;
+}
+
+@media (max-width: 991px) {
+  .nav {
+    display: none;
+  }
+
+  .burger {
+    display: block;
+  }
+}
+
+/* Overlay behind the open mobile menu: a softly blurred scrim, so the page
+   behind reads as frosted rather than simply darkened. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(3, 6, 12, 0.5);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.35s ease,
+    visibility 0s linear 0.35s;
+}
+
+.overlayShown {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease;
+}
+
+.overlayClose {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px) saturate(160%);
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s var(--ease-out);
+}
+
+.overlayClose:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.06);
+}
+
+/* Slide-in mobile menu: a floating liquid-glass panel — translucent, blurred
+   and saturated so the page shows through, with fully rounded corners. */
+
+.mobileMenu {
+  position: fixed;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+  z-index: 999999;
+  width: 300px;
+  max-width: calc(100% - 24px);
+  padding: 8px 8px 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(165deg, rgba(24, 32, 52, 0.72), rgba(8, 12, 22, 0.86));
+  backdrop-filter: blur(28px) saturate(180%);
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    var(--glass-highlight);
+  color: #fff;
+  user-select: none;
+  transform: translateX(calc(-100% - 24px));
+  visibility: hidden;
+  transition:
+    transform 0.45s var(--ease-out),
+    visibility 0s linear 0.45s;
+}
+
+.mobileMenuOpen {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.45s var(--ease-out);
+}
+
+.mobileMenu ul {
+  list-style: none;
+}
+
+.mobileMenu li {
+  position: relative;
+}
+
+.mobileMenu li a {
+  display: block;
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 16px;
+  line-height: 24px;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.mobileMenu li a:hover,
+.mobileMenu li a:focus-visible {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.mobileLogo {
+  margin-bottom: 8px;
+  padding: 12px 8px 20px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.mobileLogo a {
+  display: inline-flex;
+  padding: 0;
+}
+
+.mobileLogo a:hover,
+.mobileLogo a:focus-visible {
+  background: none;
+}
+
+.mobileLogo span {
+  display: inline-flex;
+  padding: 8px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.mobileLogo img {
+  display: block;
+  width: 40px;
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header,
+  .inner,
+  .mobileMenu,
+  .mobileMenuOpen {
+    transition: none;
+  }
+}

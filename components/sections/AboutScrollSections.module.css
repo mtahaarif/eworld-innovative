@@ -1,0 +1,199 @@
+/*
+ * Each ".group" is a two-column CSS grid: the sticky aside (number + heading)
+ * and the card column are its two grid items. The aside stays pinned near the
+ * top for as long as its own cards are scrolling past, then releases as the
+ * group ends and the next one's aside takes over. No JavaScript involved.
+ *
+ * On narrow screens the grid collapses to one column: the aside becomes a
+ * small glass bar that sticks under the header, with its cards scrolling
+ * past underneath it.
+ */
+
+.wrap {
+  padding: 60px 0 40px;
+}
+
+.group {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 56px;
+}
+
+.group + .group {
+  border-top: 1px solid var(--glass-border);
+}
+
+.aside {
+  /* `height: fit-content` is required, not cosmetic: with the default
+     `stretch` sizing (no explicit height), Chromium computes this grid
+     item's sticky constraint rect incorrectly and it never engages —
+     `sticky` then silently behaves as `static`. The element still has room
+     to travel because sticky's containing block is `.group` as a whole
+     (which is tall, matching `.cards`), not this item's own box. */
+  position: sticky;
+  top: var(--header-offset);
+  height: fit-content;
+  padding-top: 56px;
+}
+
+.index {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--color-primary-light);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  opacity: 0.8;
+}
+
+.heading {
+  background: linear-gradient(120deg, var(--color-accent), #ffb28f);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.cards {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding: 48px 0;
+}
+
+/* Each card takes half a viewport, so about two are in view at a time. */
+.card {
+  display: flex;
+  min-height: 50vh;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.panel {
+  max-width: 720px;
+  padding: 32px 36px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+  box-shadow:
+    var(--glass-shadow),
+    var(--glass-highlight);
+  transition:
+    transform 0.45s var(--ease-out),
+    border-color 0.45s var(--ease-out),
+    box-shadow 0.45s var(--ease-out);
+}
+
+.panel:hover {
+  transform: translateY(-4px);
+  border-color: var(--glass-border-strong);
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.45),
+    var(--glass-highlight);
+}
+
+/* A "kicker" chip above each card's copy (the year, or the value's name). */
+.lead {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 6px 16px;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cardText {
+  margin: 0;
+  color: var(--color-text-strong);
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* "**phrase**" markers in the copy render as a soft highlight chip behind a
+   bolder, brighter word. */
+.highlight {
+  padding: 0.04em 0.3em;
+  border-radius: 6px;
+  background: rgba(138, 171, 255, 0.16);
+  color: #fff;
+  font-weight: 700;
+  box-decoration-break: clone;
+}
+
+@media (max-width: 991px) {
+  .wrap {
+    padding: 40px 0 20px;
+  }
+
+  .group {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .group + .group {
+    border-top: 0;
+  }
+
+  /* Sticks just below the floating header (~66px tall once pinned). */
+  .aside {
+    top: 76px;
+    z-index: 2;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 14px 18px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    background: rgba(10, 15, 26, 0.72);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+
+  .index {
+    margin-bottom: 0;
+    font-size: 13px;
+  }
+
+  .heading {
+    font-size: 24px;
+  }
+
+  .cards {
+    gap: 20px;
+    padding: 24px 0 32px;
+  }
+
+  .card {
+    min-height: 40vh;
+  }
+
+  .panel {
+    padding: 24px 22px;
+  }
+
+  .cardText {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    min-height: 0;
+  }
+
+  .panel {
+    transition: none;
+  }
+}

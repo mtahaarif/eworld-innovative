@@ -1,0 +1,295 @@
+/*
+ * The slider is authored against a fixed grid per breakpoint (content/home.ts: heroGrid).
+ * Everything inside scales by k = min(1px, sliderWidth / gridWidth), computed with
+ * container-query units so it is correct on first paint, before any JavaScript runs.
+ */
+
+/* An inset, fully rounded frame: the floating glass header sits inside it. */
+.hero {
+  container-type: inline-size;
+  position: relative;
+  margin: 12px 12px 0;
+  border-radius: 32px;
+  background-color: var(--color-bg-elevated);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.module {
+  --gw: var(--gw0);
+  --gh: var(--gh0);
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+  height: min(calc(var(--gh) * 1px), calc(var(--gh) * 100cqw / var(--gw)));
+  touch-action: pan-y;
+}
+
+/* Hairline glass edge around the frame, above the photos but below the arrows. */
+.module::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .hero {
+    margin: 8px 8px 0;
+    border-radius: 22px;
+  }
+}
+
+/* Breakpoints follow the live slider: >1024, ≤1024, ≤778, ≤480 (viewport width). */
+@media (max-width: 1024px) {
+  .module {
+    --gw: var(--gw1);
+    --gh: var(--gh1);
+  }
+}
+
+@media (max-width: 778px) {
+  .module {
+    --gw: var(--gw2);
+    --gh: var(--gh2);
+  }
+}
+
+@media (max-width: 480px) {
+  .module {
+    --gw: var(--gw3);
+    --gh: var(--gh3);
+  }
+}
+
+/* Slides */
+
+.slide {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+.current {
+  z-index: 20;
+  visibility: visible;
+}
+
+.previous {
+  z-index: 18;
+  visibility: visible;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Gentle depth: darkens the top slightly (keeps the glass nav legible over any
+   photo) and the bottom (grounds the text and eases into the page below). */
+.scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 10, 19, 0.45) 0%,
+    rgba(6, 10, 19, 0.05) 30%,
+    rgba(6, 10, 19, 0.1) 60%,
+    rgba(6, 10, 19, 0.6) 100%
+  );
+  pointer-events: none;
+}
+
+/* Five vertical strips, each showing its own fifth of the full-size image.
+   The extra pixel hides hairline seams between strips. */
+.strip {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--strip) * 20cqw);
+  width: calc(20cqw + 1px);
+  overflow: hidden;
+}
+
+.stripImage {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--strip) * -20cqw);
+  width: 100cqw;
+}
+
+.image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* "Curtain from left": strips drop in one after another. */
+.curtain .stripImage {
+  animation: curtain-drop 740ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  animation-delay: calc(70ms + var(--strip) * 185ms);
+}
+
+@keyframes curtain-drop {
+  from {
+    opacity: 0.75;
+    transform: translateY(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Text layers */
+
+.layer {
+  --k: min(1px, calc(100cqw / var(--gw)));
+  --x: var(--x0);
+  --y: var(--y0);
+  --ay: var(--ay0);
+  --s: var(--s0);
+  --l: var(--l0);
+  --fw: var(--fw0);
+  --ws: var(--ws0);
+  --w: var(--w0);
+  --h: var(--h0);
+
+  position: absolute;
+  top: calc(var(--ay) * 50%);
+  left: 50%;
+  width: var(--w);
+  height: var(--h);
+  transform: translate(calc(-50% + var(--x) * var(--k)), calc(var(--ay) * -50% + var(--y) * var(--k)));
+  color: #fff;
+  font-family: var(--font-hero);
+  font-size: calc(var(--s) * var(--k));
+  font-weight: var(--fw);
+  line-height: calc(var(--l) * var(--k));
+  white-space: var(--ws);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 300ms cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.current .layer {
+  opacity: 1;
+}
+
+/* Whole-pixel sizes, as the original slider used. Behind @supports because a
+   var()-based declaration with unsupported round() would be dropped outright. */
+@supports (width: round(1.5px, 1px)) {
+  .module {
+    height: round(min(calc(var(--gh) * 1px), calc(var(--gh) * 100cqw / var(--gw))), 1px);
+  }
+
+  .layer {
+    font-size: round(calc(var(--s) * var(--k)), 1px);
+    line-height: round(calc(var(--l) * var(--k)), 1px);
+  }
+}
+
+@media (max-width: 1024px) {
+  .layer {
+    --x: var(--x1);
+    --y: var(--y1);
+    --ay: var(--ay1);
+    --s: var(--s1);
+    --l: var(--l1);
+    --fw: var(--fw1);
+    --ws: var(--ws1);
+    --w: var(--w1);
+    --h: var(--h1);
+  }
+}
+
+@media (max-width: 778px) {
+  .layer {
+    --x: var(--x2);
+    --y: var(--y2);
+    --ay: var(--ay2);
+    --s: var(--s2);
+    --l: var(--l2);
+    --fw: var(--fw2);
+    --ws: var(--ws2);
+    --w: var(--w2);
+    --h: var(--h2);
+  }
+}
+
+@media (max-width: 480px) {
+  .layer {
+    --x: var(--x3);
+    --y: var(--y3);
+    --ay: var(--ay3);
+    --s: var(--s3);
+    --l: var(--l3);
+    --fw: var(--fw3);
+    --ws: var(--ws3);
+    --w: var(--w3);
+    --h: var(--h3);
+  }
+}
+
+/* Arrows: appear on hover, hidden on narrow screens. */
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px) saturate(160%);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 0.3s ease,
+    background-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.arrow:hover {
+  background-color: rgba(255, 255, 255, 0.24);
+  transform: scale(1.06);
+}
+
+.arrowPrev {
+  left: 25px;
+}
+
+.arrowNext {
+  right: 25px;
+}
+
+.module:hover .arrow,
+.arrow:focus-visible {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .arrow {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain .stripImage {
+    animation: none;
+  }
+
+  .layer {
+    transition: none;
+  }
+}

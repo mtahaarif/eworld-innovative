@@ -1,0 +1,91 @@
+.about {
+  padding-top: 110px;
+}
+
+/* Photo in a rounded frame beside a frosted glass text card. */
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 28px;
+  align-items: stretch;
+}
+
+.media {
+  position: relative;
+  min-height: 440px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+}
+
+.media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, rgba(6, 10, 19, 0) 40%, rgba(6, 10, 19, 0.55));
+  pointer-events: none;
+}
+
+.mediaImage {
+  object-fit: cover;
+  object-position: center;
+  transition: transform 1.2s var(--ease-out);
+}
+
+.media:hover .mediaImage {
+  transform: scale(1.04);
+}
+
+.card {
+  padding: 48px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.075), rgba(255, 255, 255, 0.02));
+  backdrop-filter: var(--glass-blur);
+  box-shadow:
+    var(--glass-shadow),
+    var(--glass-highlight);
+}
+
+.heading {
+  margin: 18px 0 22px;
+  background: linear-gradient(120deg, #ffffff 35%, #a9c0ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.body p {
+  color: var(--color-text-strong);
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.body p:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 991px) {
+  .about {
+    padding-top: 70px;
+  }
+
+  .intro {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .media {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+
+  .card {
+    padding: 32px 26px;
+  }
+}
