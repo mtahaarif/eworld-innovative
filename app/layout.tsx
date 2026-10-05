@@ -9,7 +9,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: site.title,
+  title: { default: site.title, template: `%s – ${site.name}` },
   icons: { icon: { url: images.mark.src, type: "image/png" } },
 };
 

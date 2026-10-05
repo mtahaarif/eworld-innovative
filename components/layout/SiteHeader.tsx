@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { images, mainNav, site } from "@/content/site";
 import { CloseIcon } from "@/components/ui/icons";
@@ -12,6 +13,7 @@ const DESKTOP_QUERY = "(min-width: 992px)";
 export function SiteHeader() {
   const [isFixed, setIsFixed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 
@@ -77,7 +79,7 @@ export function SiteHeader() {
               <ul>
                 {mainNav.map((item) => (
                   <li key={item.href}>
-                    <Link href={item.href}>
+                    <Link href={item.href} aria-current={pathname === item.href ? "page" : undefined}>
                       <span>{item.label}</span>
                     </Link>
                   </li>
@@ -104,7 +106,7 @@ export function SiteHeader() {
           </li>
           {mainNav.map((item) => (
             <li key={item.href}>
-              <Link href={item.href} onClick={closeMenu}>
+              <Link href={item.href} onClick={closeMenu} aria-current={pathname === item.href ? "page" : undefined}>
                 {item.label}
               </Link>
             </li>

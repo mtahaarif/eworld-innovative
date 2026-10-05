@@ -1,10 +1,12 @@
 import Image from "next/image";
+import Link from "next/link";
 import { about } from "@/content/home";
 import { Reveal } from "@/components/ui/Reveal";
-import { AboutScrollSections } from "./AboutScrollSections";
+import { ArrowRightIcon } from "@/components/ui/icons";
 import styles from "./AboutSection.module.css";
 
-export function AboutSection() {
+/** Photo beside a glass card with the company introduction. On the homepage it links on to /about. */
+export function AboutSection({ showMoreLink = false }: { showMoreLink?: boolean }) {
   return (
     <section id={about.id} className={styles.about}>
       <div className={`container ${styles.intro}`}>
@@ -20,10 +22,14 @@ export function AboutSection() {
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
+          {showMoreLink && (
+            <Link href="/about" className={`button ${styles.more}`}>
+              Learn more about us
+              <ArrowRightIcon size={18} />
+            </Link>
+          )}
         </Reveal>
       </div>
-
-      <AboutScrollSections tabs={about.tabs} />
     </section>
   );
 }

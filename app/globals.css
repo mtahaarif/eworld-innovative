@@ -248,3 +248,36 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+/* Primary call-to-action: a blue glass pill ("View all services", "Learn more about us"). */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border: 1px solid rgba(138, 171, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(38, 92, 220, 0.45);
+  box-shadow: 0 10px 30px rgba(38, 92, 220, 0.25);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s var(--ease-out),
+    box-shadow 0.3s ease;
+}
+
+.button:hover {
+  background: rgba(38, 92, 220, 0.75);
+  box-shadow: 0 14px 36px rgba(38, 92, 220, 0.4);
+  transform: translateY(-2px);
+}
+
+.button svg {
+  transition: transform 0.3s var(--ease-out);
+}
+
+.button:hover svg {
+  transform: translateX(3px);
+}

@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useId, useLayoutEffect, useRef } from "react";
 import type { ServiceRow } from "@/content/home";
-import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon, CloseIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/ui/icons";
 import styles from "./ServicesCarousel.module.css";
 
 /**
@@ -14,7 +15,7 @@ import styles from "./ServicesCarousel.module.css";
 const COPIES = 3;
 const MAIN_COPY = 1;
 const AUTOPLAY_MS = 4500;
-/** How long autoplay holds off after the visitor steps, swipes or jumps to a card. */
+/** How long autoplay holds off after the visitor steps or swipes. */
 const HOLD_AFTER_INTERACTION_MS = 9000;
 
 const prefersReducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -29,6 +30,7 @@ function measure(track: HTMLElement, count: number) {
   };
 }
 
+/** Infinite, auto-advancing carousel of service summaries; each card links to its full write-up on /services. */
 export function ServicesCarousel({ services }: { services: readonly ServiceRow[] }) {
   const count = services.length;
   const baseId = useId();
@@ -36,12 +38,7 @@ export function ServicesCarousel({ services }: { services: readonly ServiceRow[]
   /** A `.container` element: its left edge is where the cards line up. */
   const alignRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const pause = useRef({ hover: false, focus: false, dialog: false, visible: false, until: 0 });
-
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
-  /** Which service the dialog shows; kept after closing so the content doesn't blank mid-close. */
-  const [shownIndex, setShownIndex] = useState(0);
+  const pause = useRef({ hover: false, focus: false, visible: false, until: 0 });
 
   /** Keeps the view centred on the main copy, wrapping by one copy width when it drifts into a clone. */
   const recentre = useCallback(() => {
@@ -99,7 +96,7 @@ export function ServicesCarousel({ services }: { services: readonly ServiceRow[]
     if (prefersReducedMotion()) return;
     const timer = window.setInterval(() => {
       const p = pause.current;
-      if (p.hover || p.focus || p.dialog || !p.visible || document.hidden || Date.now() < p.until) return;
+      if (p.hover || p.focus || !p.visible || document.hidden || Date.now() < p.until) return;
       step(1);
     }, AUTOPLAY_MS);
     return () => window.clearInterval(timer);
@@ -118,55 +115,15 @@ export function ServicesCarousel({ services }: { services: readonly ServiceRow[]
     return () => observer.disconnect();
   }, []);
 
-  // The main menu and footer link to "/#<service-id>", which lands on that
-  // service's card: hold autoplay so the card doesn't slide away on arrival.
-  useEffect(() => {
-    const ids = new Set(services.map((service) => service.id));
-    const holdIfServiceLink = (hash: string) => {
-      if (ids.has(decodeURIComponent(hash.slice(1)))) pause.current.until = Date.now() + HOLD_AFTER_INTERACTION_MS;
-    };
-    holdIfServiceLink(window.location.hash);
-    const onClick = (event: MouseEvent) => {
-      const link = event.target instanceof Element ? event.target.closest("a[href*='#']") : null;
-      if (link instanceof HTMLAnchorElement) holdIfServiceLink(link.hash);
-    };
-    document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
-  }, [services]);
-
-  // Open/close the native modal dialog to match state, locking page scroll while it's open.
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    pause.current.dialog = openIndex !== null;
-    if (openIndex === null) {
-      if (dialog.open) dialog.close();
-      return;
-    }
-    if (!dialog.open) dialog.showModal();
-    const root = document.documentElement;
-    root.classList.add("is-scroll-locked");
-    return () => root.classList.remove("is-scroll-locked");
-  }, [openIndex]);
-
-  const openDetails = (index: number) => {
-    setShownIndex(index);
-    setOpenIndex(index);
-  };
-  const closeDetails = () => dialogRef.current?.close();
-
   const trackId = `${baseId}-track`;
   const headingId = `${baseId}-heading`;
-  const dialogTitleId = `${baseId}-dialog-title`;
-  const shown = services[shownIndex];
 
   const cards = Array.from({ length: COPIES }, (_, copy) => copy).flatMap((copy) =>
-    services.map((service, index) => {
+    services.map((service) => {
       const isMain = copy === MAIN_COPY;
       return (
         <article
           key={`${copy}-${service.id}`}
-          id={isMain ? service.id : undefined}
           data-card=""
           className={styles.card}
           // The clones are visual only: screen readers and the Tab key see one set of cards.
@@ -178,16 +135,10 @@ export function ServicesCarousel({ services }: { services: readonly ServiceRow[]
           <div className={styles.body}>
             <h3 className={styles.title}>{service.heading}</h3>
             <p className={styles.teaser}>{service.teaser}</p>
-            <button
-              type="button"
-              className={styles.more}
-              tabIndex={isMain ? undefined : -1}
-              aria-haspopup="dialog"
-              onClick={() => openDetails(index)}
-            >
+            <Link href={`/services#${service.id}`} className={styles.more} tabIndex={isMain ? undefined : -1}>
               View {service.shortName} details
               <ArrowRightIcon size={18} />
-            </button>
+            </Link>
           </div>
         </article>
       );
@@ -196,7 +147,6 @@ export function ServicesCarousel({ services }: { services: readonly ServiceRow[]
 
   return (
     <section
-      id="services"
       ref={sectionRef}
       className={styles.section}
       aria-labelledby={headingId}
@@ -253,34 +203,12 @@ export function ServicesCarousel({ services }: { services: readonly ServiceRow[]
         </button>
       </div>
 
-      <dialog
-        ref={dialogRef}
-        className={styles.dialog}
-        aria-labelledby={dialogTitleId}
-        onClose={() => setOpenIndex(null)}
-        // A click whose target is the <dialog> itself landed on the backdrop.
-        onClick={(event) => {
-          if (event.target === event.currentTarget) closeDetails();
-        }}
-      >
-        <div className={styles.dialogPanel}>
-          <button type="button" className={styles.dialogClose} aria-label="Close" onClick={closeDetails}>
-            <CloseIcon size={18} />
-          </button>
-          <div className={styles.dialogMedia}>
-            <Image src={shown.image.src} alt="" fill sizes="(max-width: 800px) 100vw, 760px" className={styles.image} />
-          </div>
-          <div className={styles.dialogBody}>
-            <span className="chip">{shown.shortName}</span>
-            <h3 id={dialogTitleId} className={styles.dialogTitle}>
-              {shown.heading}
-            </h3>
-            {shown.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
-          </div>
-        </div>
-      </dialog>
+      <div className={`container ${styles.footer}`}>
+        <Link href="/services" className="button">
+          View all services
+          <ArrowRightIcon size={18} />
+        </Link>
+      </div>
     </section>
   );
 }

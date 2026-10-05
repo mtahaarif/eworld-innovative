@@ -31,25 +31,21 @@ export const images = {
 
 export type NavItem = { label: string; href: string };
 
-/** Main menu: in-page anchors on the one-page homepage. */
+/** Main menu: one entry per page. */
 export const mainNav: NavItem[] = [
-  { label: "About Us", href: "/#about-us" },
-  { label: "LMS & Tools", href: "/#lms-and-tools" },
-  { label: "Mobile App", href: "/#mobile-app-development" },
-  { label: "Web Development", href: "/#web-development" },
-  { label: "Digital Marketing", href: "/#digital-marketing" },
-  { label: "Cyber Security", href: "/#cyber-security" },
-  { label: "Data Analytics", href: "/#data-analytics" },
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "Services", href: "/services" },
 ];
 
-/** Footer "Quick Links" widget. */
+/** Footer "Quick Links" widget: each service's section on the Services page. */
 export const quickLinks: NavItem[] = [
-  { label: "LMS & Tools", href: "/#lms-and-tools" },
-  { label: "Mobile App Development", href: "/#mobile-app-development" },
-  { label: "Web Development", href: "/#web-development" },
-  { label: "Digital Marketing", href: "/#digital-marketing" },
-  { label: "Cyber Security", href: "/#cyber-security" },
-  { label: "Data Analytics", href: "/#data-analytics" },
+  { label: "LMS & Tools", href: "/services#lms-and-tools" },
+  { label: "Mobile App Development", href: "/services#mobile-app-development" },
+  { label: "Web Development", href: "/services#web-development" },
+  { label: "Digital Marketing", href: "/services#digital-marketing" },
+  { label: "Cyber Security", href: "/services#cyber-security" },
+  { label: "Data Analytics", href: "/services#data-analytics" },
 ];
 
 export const footerAbout =
